@@ -49,7 +49,8 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == S)
             {
-                TurnCar(car, 180);
+                if (carComingFrom != N)
+                    TurnCar(car, 180, new Vector3(0,0,-2));
 
                 //if (carComingFrom == W) {
                 //    car.transform.Rotate(Vector3.up, 90);
@@ -63,7 +64,8 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == W)
             {
-                TurnCar(car, -90);
+                if (carComingFrom != E)
+                    TurnCar(car, -90, new Vector3(-2, 0, 0));
 
                 //if (carComingFrom == S) {
                 //    car.transform.Rotate(Vector3.up, -90);
@@ -77,7 +79,8 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == E)
             {
-                TurnCar(car, 90);
+                if (carComingFrom != W)
+                    TurnCar(car, 90, new Vector3(2, 0, 0));
 
                 //if (carComingFrom == S) {
                 //    car.transform.Rotate(Vector3.up, 90);
@@ -91,7 +94,8 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == N)
             {
-                TurnCar(car, 0);
+                if (carComingFrom != S)
+                    TurnCar(car, 0, new Vector3(0, 0, 2));
 
                 //if (carComingFrom == W) {
                 //    car.transform.Rotate(Vector3.up, -90);
@@ -116,17 +120,20 @@ public class TurnPoint : MonoBehaviour
         }
     }
 
-    private void TurnCar(Car car, float targetAngle)
+    private void TurnCar(Car car, float targetAngle, Vector3 position)
     {
         if (car.isTurning) return;
 
+        
 
         car.isTurning = true;
-        car.transform.DORotate(new Vector3(0f, targetAngle, 0f), .5f, RotateMode.Fast).OnComplete(() =>
-        {
-            car.isTurning = false;
-        });
 
+        Sequence sequence = DOTween.Sequence();
+        sequence.Join(car.transform.DOMove(transform.position + position, 1f).SetEase(Ease.Linear))
+                .Join(car.transform.DORotate(new Vector3(0f, targetAngle, 0f), 1f, RotateMode.Fast));
+
+        sequence.Play().OnComplete(() => car.isTurning = false);
+        
     }
 
 }

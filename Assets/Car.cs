@@ -5,7 +5,7 @@ using UnityEngine;
 public class Car : MonoBehaviour
 {
     public float speed = 5f;
-    public float turningSpeed = .5f;
+    public float turningSpeed = 5f;
 
     public bool isTurning = false;
 
@@ -15,11 +15,11 @@ public class Car : MonoBehaviour
     void Update()
     {
         currentSpeed = isTurning ? turningSpeed : speed ;
-        MoveCar();
+        if (isTurning==false) MoveCar();
     }
 
     void MoveCar() {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
     }
 
     //public IEnumerator GotoTarget(Vector3 _targetPosition)
