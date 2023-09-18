@@ -5,14 +5,17 @@ using UnityEngine;
 public class Car : MonoBehaviour
 {
     public float speed = 5f;
+    public float turningSpeed = .5f;
+
     public bool isTurning = false;
+
+    public  float currentSpeed;
 
 
     void Update()
     {
-        if (isTurning == false)
-            MoveCar();
-
+        currentSpeed = isTurning ? turningSpeed : speed ;
+        MoveCar();
     }
 
     void MoveCar() {

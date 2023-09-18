@@ -40,7 +40,7 @@ public class TurnPoint : MonoBehaviour
         var car = other.gameObject.GetComponent<Car>();
         if (car == null) return;
 
-        if (isCarTurning == false)
+        if (car.isTurning == false)
         {
             //isCarTurning = true;
 
@@ -49,61 +49,61 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == S)
             {
-                if (carComingFrom == W) {
-                    // car.transform.Rotate(Vector3.up, 90);
-                    TurnCar(car, 90);
-                    car.transform.position = this.transform.position;
-                }
-                if (carComingFrom == E) {
-                    // car.transform.Rotate(Vector3.up, -90);
-                    TurnCar(car, -90);
-                    car.transform.position = this.transform.position;
-                }
+                TurnCar(car, 180);
+
+                //if (carComingFrom == W) {
+                //    car.transform.Rotate(Vector3.up, 90);
+                //    car.transform.position = this.transform.position;
+                //}
+                //if (carComingFrom == E) {
+                //    car.transform.Rotate(Vector3.up, -90);
+                //    car.transform.position = this.transform.position;
+                //}
             }
 
             if (direction == W)
             {
-                if (carComingFrom == S) {
-                    // car.transform.Rotate(Vector3.up, -90);
-                    TurnCar(car, -90);
-                    car.transform.position = this.transform.position;
-                }
-                if (carComingFrom == N) {
-                    // car.transform.Rotate(Vector3.up, 90);
-                    TurnCar(car, 90);
-                    car.transform.position = this.transform.position;
-                }
+                TurnCar(car, -90);
+
+                //if (carComingFrom == S) {
+                //    car.transform.Rotate(Vector3.up, -90);
+                //    car.transform.position = this.transform.position;
+                //}
+                //if (carComingFrom == N) {
+                //    car.transform.Rotate(Vector3.up, 90);
+                //    car.transform.position = this.transform.position;
+                //}
             }
 
             if (direction == E)
             {
-                if (carComingFrom == S) {
-                    // car.transform.Rotate(Vector3.up, 90);
-                    TurnCar(car, 90);
-                    car.transform.position = this.transform.position;
-                }
-                if (carComingFrom == N) {
-                    // car.transform.Rotate(Vector3.up, -90);
-                    TurnCar(car, -90);
-                    car.transform.position = this.transform.position;
-                }
+                TurnCar(car, 90);
+
+                //if (carComingFrom == S) {
+                //    car.transform.Rotate(Vector3.up, 90);
+                //    car.transform.position = this.transform.position;
+                //}
+                //if (carComingFrom == N) {
+                //    car.transform.Rotate(Vector3.up, -90);
+                //    car.transform.position = this.transform.position;
+                //}
             }
 
             if (direction == N)
             {
-                if (carComingFrom == W) {
-                    // car.transform.Rotate(Vector3.up, -90);
-                    TurnCar(car, -90);
-                    car.transform.position = this.transform.position;
-                }
-                if (carComingFrom == E) {
-                    // car.transform.Rotate(Vector3.up, 90);
-                    TurnCar(car, 90);
-                    car.transform.position = this.transform.position;
-                }
+                TurnCar(car, 0);
+
+                //if (carComingFrom == W) {
+                //    car.transform.Rotate(Vector3.up, -90);
+                //    car.transform.position = this.transform.position;
+                //}
+                //if (carComingFrom == E) {
+                //    car.transform.Rotate(Vector3.up, 90);
+                //    car.transform.position = this.transform.position;
+                //}
             }
-            // car.targetPosition = this.transform.position;
-            //car.transform.position = this.transform.position;
+
+            
         }
     }
 
@@ -118,9 +118,11 @@ public class TurnPoint : MonoBehaviour
 
     private void TurnCar(Car car, float targetAngle)
     {
-        
+        if (car.isTurning) return;
+
+
         car.isTurning = true;
-        car.transform.DORotate(new Vector3(0f, targetAngle, 0f), 1f, RotateMode.Fast).OnComplete(() =>
+        car.transform.DORotate(new Vector3(0f, targetAngle, 0f), .5f, RotateMode.Fast).OnComplete(() =>
         {
             car.isTurning = false;
         });
