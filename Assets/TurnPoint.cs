@@ -4,6 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 public class TurnPoint : MonoBehaviour
 {
+    public float roadWidth = 3.4f;
+
     public TurnPointDirection N;
     public TurnPointDirection S;
     public TurnPointDirection W;
@@ -49,8 +51,7 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == S)
             {
-                if (carComingFrom != N)
-                    TurnCar(car, 180, new Vector3(0,0,-2));
+                if (carComingFrom != N) TurnCar(car, 180, new Vector3(-0.5f, 0, -3f));
 
                 //if (carComingFrom == W) {
                 //    car.transform.Rotate(Vector3.up, 90);
@@ -64,8 +65,7 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == W)
             {
-                if (carComingFrom != E)
-                    TurnCar(car, -90, new Vector3(-2, 0, 0));
+                if (carComingFrom != E) TurnCar(car, -90, new Vector3(-2f, 0, 1.2f));
 
                 //if (carComingFrom == S) {
                 //    car.transform.Rotate(Vector3.up, -90);
@@ -79,8 +79,8 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == E)
             {
-                if (carComingFrom != W)
-                    TurnCar(car, 90, new Vector3(2, 0, 0));
+                if (carComingFrom != W) TurnCar(car, 90, new Vector3(2f, 0, -0.7f));
+
 
                 //if (carComingFrom == S) {
                 //    car.transform.Rotate(Vector3.up, 90);
@@ -94,8 +94,7 @@ public class TurnPoint : MonoBehaviour
 
             if (direction == N)
             {
-                if (carComingFrom != S)
-                    TurnCar(car, 0, new Vector3(0, 0, 2));
+                if (carComingFrom != S) TurnCar(car, 0, new Vector3(1.4f, 0, 3f));
 
                 //if (carComingFrom == W) {
                 //    car.transform.Rotate(Vector3.up, -90);
