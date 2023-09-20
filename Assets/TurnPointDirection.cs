@@ -8,6 +8,6 @@ public class TurnPointDirection : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        turnPoint.CarIsComingFrom(this);
+        //turnPoint.CarIsComingFrom(this);
     }
 }

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+
+
 public class TurnPoint : MonoBehaviour
 {
     public float roadWidth = 3.4f;
@@ -15,28 +17,18 @@ public class TurnPoint : MonoBehaviour
     private TurnPointDirection carComingFrom;
 
     public bool isCarTurning = false;
-    private List<TurnPointDirection> possibleDirections = new List<TurnPointDirection>(); 
+    private List<Car.Direction> possibleDirections = new List<Car.Direction>();
+
 
     // Start is called before the first frame update
     void Start()
     {
-        if (N.isActiveAndEnabled) possibleDirections.Add(N);
-        if (S.isActiveAndEnabled) possibleDirections.Add(S);
-        if (W.isActiveAndEnabled) possibleDirections.Add(W);
-        if (E.isActiveAndEnabled) possibleDirections.Add(E);
+        if (N.isActiveAndEnabled) possibleDirections.Add(Car.Direction.N);
+        if (S.isActiveAndEnabled) possibleDirections.Add(Car.Direction.S);
+        if (W.isActiveAndEnabled) possibleDirections.Add(Car.Direction.W);
+        if (E.isActiveAndEnabled) possibleDirections.Add(Car.Direction.E);
 
     }
-
-    public void CarIsComingFrom(TurnPointDirection direction)
-    {
-        if (isCarTurning == false)
-        {
-            carComingFrom = direction;
-            possibleDirections.Remove(direction);
-            Debug.Log("Car is coming from:" + direction);
-        }
-    }
-
 
     private void OnTriggerEnter(Collider other)
     {
@@ -47,28 +39,40 @@ public class TurnPoint : MonoBehaviour
         {
             //isCarTurning = true;
 
-            var direction = possibleDirections[Random.Range(0, possibleDirections.Count - 1)];
+            var tempPossibleDirections = new List<Car.Direction>();
+            foreach(var i in possibleDirections) tempPossibleDirections.Add(i);   
+            tempPossibleDirections.Remove((Car.Direction)((int)car.direction*-1));
+
+
+            var direction = tempPossibleDirections[Random.Range(0, possibleDirections.Count - 1)];
+
+            Debug.Log("Car's Direction is " + car.direction);
             Debug.Log("GOTO:" + direction);
 
-            if (direction == S)
+            
+
+            if (direction == Car.Direction.S)
             {
-                if (carComingFrom != N) TurnCar(car, 180);
+                if (car.direction != Car.Direction.S) TurnCar(car, 180);
+                car.direction = Car.Direction.S;
             }
 
-            if (direction == W)
+            if (direction == Car.Direction.W)
             {
-                if (carComingFrom != E) TurnCar(car, -90);
-
+                if (car.direction != Car.Direction.W) TurnCar(car, -90);
+                car.direction = Car.Direction.W;
             }
 
-            if (direction == E)
+            if (direction == Car.Direction.E)
             {
-                if (carComingFrom != W) TurnCar(car, 90);
+                if (car.direction != Car.Direction.E) TurnCar(car, 90);
+                car.direction = Car.Direction.E;
             }
 
-            if (direction == N)
+            if (direction == Car.Direction.N)
             {
-                if (carComingFrom != S) TurnCar(car, 0);
+                if (car.direction != Car.Direction.N) TurnCar(car, 0);
+                car.direction = Car.Direction.N;
             }
 
             
@@ -77,19 +81,12 @@ public class TurnPoint : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.GetComponent<Car>() != null)
-        {
-            possibleDirections.Add(carComingFrom);
-            isCarTurning = false;
-        }
+
     }
 
     private void TurnCar(Car car, float targetAngle)
     {
         if (car.isTurning) return;
-
-        
-
         car.isTurning = true;
 
         Sequence sequence = DOTween.Sequence();
