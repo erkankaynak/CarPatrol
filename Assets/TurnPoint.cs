@@ -13,12 +13,11 @@ public class TurnPoint : MonoBehaviour
     public TurnPointDirection W;
     public TurnPointDirection E;
 
-
+    private float turnDuration = .6f;
     private TurnPointDirection carComingFrom;
 
     public bool isCarTurning = false;
     private List<Car.Direction> possibleDirections = new List<Car.Direction>();
-
 
     // Start is called before the first frame update
     void Start()
@@ -49,51 +48,32 @@ public class TurnPoint : MonoBehaviour
             Debug.Log("Car's Direction is " + car.direction);
             Debug.Log("GOTO:" + direction);
 
-            
-
-            if (direction == Car.Direction.S)
-            {
-                if (car.direction != Car.Direction.S) TurnCar(car, 180);
-                car.direction = Car.Direction.S;
-            }
-
-            if (direction == Car.Direction.W)
-            {
-                if (car.direction != Car.Direction.W) TurnCar(car, -90);
-                car.direction = Car.Direction.W;
-            }
-
-            if (direction == Car.Direction.E)
-            {
-                if (car.direction != Car.Direction.E) TurnCar(car, 90);
-                car.direction = Car.Direction.E;
-            }
-
-            if (direction == Car.Direction.N)
-            {
-                if (car.direction != Car.Direction.N) TurnCar(car, 0);
-                car.direction = Car.Direction.N;
-            }
-
-            
+            if (car.direction != direction)
+                TurnCar(car, direction);
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void TurnCar(Car car, Car.Direction direction)
     {
+        Vector3 targetPosition = Vector3.zero;
+        float angle = 0f;
 
-    }
+        if (direction == Car.Direction.W) { angle = -90f; targetPosition = new Vector3(car.transform.position.x, car.transform.position.y, transform.position.z + 1f); }
+        if (direction == Car.Direction.E) { angle = 90f; targetPosition = new Vector3(car.transform.position.x, car.transform.position.y, transform.position.z - 1f); }
+        if (direction == Car.Direction.N) { angle = 0f; targetPosition = new Vector3(transform.position.x + 1f, car.transform.position.y, car.transform.position.z); }
+        if (direction == Car.Direction.S) { angle = 180f; targetPosition = new Vector3(transform.position.x - 1f, car.transform.position.y, car.transform.position.z); }
 
-    private void TurnCar(Car car, float targetAngle)
-    {
         if (car.isTurning) return;
         car.isTurning = true;
 
         Sequence sequence = DOTween.Sequence();
-        sequence.Join(car.transform.DOMove(transform.position, 1f).SetEase(Ease.Linear))
-                .Join(car.transform.DORotate(new Vector3(0f, targetAngle, 0f), 1f, RotateMode.Fast));
+        sequence.Join(car.transform.DOMove(targetPosition, 1f).SetEase(Ease.Linear))
+                .Join(car.transform.DORotate(new Vector3(0f, angle, 0f), 1f, RotateMode.Fast));
 
-        sequence.Play().OnComplete(() => car.isTurning = false);
+        sequence.Play().OnComplete(() => {
+            car.isTurning = false;
+            car.direction = direction;
+        });
         
     }
 
