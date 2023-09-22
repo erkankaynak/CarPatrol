@@ -13,10 +13,6 @@ public class TurnPoint : MonoBehaviour
     public TurnPointDirection W;
     public TurnPointDirection E;
 
-    private float turnDuration = .6f;
-    private TurnPointDirection carComingFrom;
-
-    public bool isCarTurning = false;
     private List<Car.Direction> possibleDirections = new List<Car.Direction>();
 
     // Start is called before the first frame update
@@ -45,12 +41,15 @@ public class TurnPoint : MonoBehaviour
 
             var direction = tempPossibleDirections[Random.Range(0, possibleDirections.Count - 1)];
 
+            print("Car's Direction is " + car.direction);
+            print("Car is going to " + direction);
+
             if (car.direction != direction)
-                TurnCar(car, direction);
+                StartCoroutine(TurnCar(car, direction));
         }
     }
 
-    private void TurnCar(Car car, Car.Direction direction)
+    private void _Turn(Car car, Car.Direction direction)
     {
         Vector3 targetPosition = Vector3.zero;
         float angle = 0f;
@@ -74,23 +73,80 @@ public class TurnPoint : MonoBehaviour
         
     }
 
-    private IEnumerator Turn(Car car, Car.Direction direction)
+    private IEnumerator TurnCar(Car car, Car.Direction targetDirection)
     {
-        var targetAngle = 0f;
-        Vector3 pivotPoint = Vector3.zero;
+        var targetPosition = Vector3.zero;
+        var carDirection = car.direction;
+        var destination = "";
 
-        if (direction == Car.Direction.W) { targetAngle = -90f; pivotPoint = transform.position + new Vector3(-3f, 0f, 1f); }
-        if (direction == Car.Direction.E) { targetAngle = 90f; pivotPoint = transform.position + new Vector3(3f, 0f, -1f); }
+        if (carDirection == Car.Direction.N && targetDirection == Car.Direction.W) { targetPosition = car.transform.position + Vector3.forward * 2f; destination = "L"; }
+        if (carDirection == Car.Direction.N && targetDirection == Car.Direction.E) { destination = "R"; }
+
+        if (carDirection == Car.Direction.S && targetDirection == Car.Direction.E) { targetPosition = car.transform.position - Vector3.forward * 2f; destination = "L"; }
+        if (carDirection == Car.Direction.S && targetDirection == Car.Direction.W) { destination = "R"; }
+
+        if (carDirection == Car.Direction.W && targetDirection == Car.Direction.S) { targetPosition = car.transform.position - Vector3.forward * 2f; destination = "L"; }
+        if (carDirection == Car.Direction.W && targetDirection == Car.Direction.N) { destination = "R"; }
+
+        if (carDirection == Car.Direction.E && targetDirection == Car.Direction.N) { targetPosition = car.transform.position + Vector3.forward * 2f; destination = "L"; }
+        if (carDirection == Car.Direction.E && targetDirection == Car.Direction.S) { destination = "R"; }
 
         car.isTurning = true;
 
-        while (targetAngle >= transform.rotation.eulerAngles.y)
-        {
-            transform.RotateAround(pivotPoint, Vector3.up, 50f * Time.deltaTime);
+        print("Destination : " + destination);
 
-            yield return null;
+        if (targetPosition != Vector3.zero)
+        {
+            while (Vector3.Distance(car.transform.position, targetPosition) > 0.1f)
+            {
+                car.transform.position = Vector3.MoveTowards(car.transform.position, targetPosition, 5f * Time.deltaTime);
+                yield return null;
+            }
+            car.transform.position = targetPosition;
         }
+
+        if (destination == "L")
+            yield return StartCoroutine(TurnLeft(car));
+        else
+            yield return StartCoroutine(TurnRight(car));
+
+        car.direction = targetDirection;
         car.isTurning = false;
     }
 
+    private IEnumerator TurnRight(Car car)
+    {
+        var targetAngle = 90f;
+        var pivotPoint = car.transform.position +  Vector3.right * 2f + Vector3.forward * 0.2f;
+        var angle = 50f;
+
+        if (car.direction == Car.Direction.N) { targetAngle = 90f; pivotPoint = car.transform.position - Vector3.right * 2f + Vector3.forward * 0.2f; }
+        if (car.direction == Car.Direction.S) { targetAngle = 270f; pivotPoint = car.transform.position - Vector3.right * 2f - Vector3.forward * 0.2f; }
+        if (car.direction == Car.Direction.W) { targetAngle = 0f; pivotPoint = car.transform.position + Vector3.right * 2f + Vector3.forward * 0.2f; }
+        if (car.direction == Car.Direction.E) { targetAngle = 180f; pivotPoint = car.transform.position - Vector3.right * 2f - Vector3.forward * 0.2f; }
+
+        while ((int)car.transform.rotation.eulerAngles.y != (int)targetAngle)
+        {
+            car.transform.RotateAround(pivotPoint, Vector3.up, angle * Time.deltaTime);
+            yield return null;
+        }
+    }
+
+    private IEnumerator TurnLeft(Car car)
+    {
+        var targetAngle = 270f;
+        var pivotPoint = car.transform.position + Vector3.left * 2f + Vector3.forward * 0.2f;
+        var angle = -50f;
+
+        if (car.direction == Car.Direction.N) { targetAngle = 270f; pivotPoint = car.transform.position - Vector3.right * 2f + Vector3.forward * 0.2f; }
+        if (car.direction == Car.Direction.S) { targetAngle = 90f; pivotPoint = car.transform.position + Vector3.right * 2f - Vector3.forward * 0.2f; }
+        if (car.direction == Car.Direction.W) { targetAngle = 180f; pivotPoint = car.transform.position - Vector3.right * 2f - Vector3.forward * 0.2f; }
+        if (car.direction == Car.Direction.E) { targetAngle = 0f; pivotPoint = car.transform.position + Vector3.right * 2f + Vector3.forward * 0.2f; }
+
+        while ((int)car.transform.rotation.eulerAngles.y != (int)targetAngle)
+        {
+            car.transform.RotateAround(pivotPoint, Vector3.up, angle * Time.deltaTime);
+            yield return null;
+        }
+    }
 }

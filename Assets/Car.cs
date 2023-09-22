@@ -16,8 +16,9 @@ public class Car : MonoBehaviour
     void Update()
     {
         currentSpeed = isTurning ? turningSpeed : speed ;
-        //if (isTurning == false) 
-        MoveCar();
+
+        if (isTurning == false) 
+            MoveCar();
     }
 
     void MoveCar() {
