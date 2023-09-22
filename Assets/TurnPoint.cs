@@ -45,9 +45,6 @@ public class TurnPoint : MonoBehaviour
 
             var direction = tempPossibleDirections[Random.Range(0, possibleDirections.Count - 1)];
 
-            Debug.Log("Car's Direction is " + car.direction);
-            Debug.Log("GOTO:" + direction);
-
             if (car.direction != direction)
                 TurnCar(car, direction);
         }
@@ -75,6 +72,25 @@ public class TurnPoint : MonoBehaviour
             car.direction = direction;
         });
         
+    }
+
+    private IEnumerator Turn(Car car, Car.Direction direction)
+    {
+        var targetAngle = 0f;
+        Vector3 pivotPoint = Vector3.zero;
+
+        if (direction == Car.Direction.W) { targetAngle = -90f; pivotPoint = transform.position + new Vector3(-3f, 0f, 1f); }
+        if (direction == Car.Direction.E) { targetAngle = 90f; pivotPoint = transform.position + new Vector3(3f, 0f, -1f); }
+
+        car.isTurning = true;
+
+        while (targetAngle >= transform.rotation.eulerAngles.y)
+        {
+            transform.RotateAround(pivotPoint, Vector3.up, 50f * Time.deltaTime);
+
+            yield return null;
+        }
+        car.isTurning = false;
     }
 
 }

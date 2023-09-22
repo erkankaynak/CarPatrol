@@ -4,31 +4,47 @@ using UnityEngine;
 
 public class PivotChange : MonoBehaviour
 {
-    public Transform pivotPoint; // Assign the pivot point GameObject in the Inspector
-    public float rotationSpeed = 45.0f; // Adjust the rotation speed as needed
 
+    private Car car;
+    private bool isTurning;
+
+    private void Start()
+    {
+        car = gameObject.GetComponent<Car>();
+    }
     private void Update()
     {
-        // Rotate the car around the custom pivot point
-        if (Input.GetKey(KeyCode.A)) // Example: Rotate left
+        if (Input.GetKeyDown(KeyCode.D)) // Example: Rotate right
         {
-            RotateAroundPivot(Vector3.up, -rotationSpeed * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.D)) // Example: Rotate right
-        {
-            RotateAroundPivot(Vector3.up, rotationSpeed * Time.deltaTime);
+            if (!isTurning)
+                StartCoroutine(Turn(targetDirection: Car.Direction.W, carDirection: Car.Direction.N));
+
         }
     }
 
-    // Function to rotate an object around a custom pivot point
-    private void RotateAroundPivot(Vector3 axis, float angle)
+
+    private IEnumerator Turn(Car.Direction targetDirection, Car.Direction carDirection)
     {
-        Vector3 pivotPosition = pivotPoint.position;
+        var targetAngle = 0f;
+        var pivotPoint = Vector3.zero;
+        var angle = 0f;
 
-        // Move the object to the pivot point
-        transform.position = Quaternion.AngleAxis(angle, axis) * (transform.position - pivotPosition) + pivotPosition;
+        if (carDirection == Car.Direction.N && targetDirection == Car.Direction.W) { targetAngle = 270f; pivotPoint = transform.position + new Vector3(-2f, 0f, 1f); angle = -50f; }
+        if (carDirection == Car.Direction.N && targetDirection == Car.Direction.E) { targetAngle = 90f; pivotPoint = transform.position + new Vector3(2f, 0f, 0f); angle = 50f; }
+        if (carDirection == Car.Direction.S && targetDirection == Car.Direction.E) { targetAngle = 90f; pivotPoint = transform.position + new Vector3(2f, 0f, -1f); angle = -50f; }
+        if (carDirection == Car.Direction.S && targetDirection == Car.Direction.W) { targetAngle = 270f; pivotPoint = transform.position + new Vector3(-2f, 0f, 0f); angle = 50f; }
 
-        // Rotate the object
-        transform.rotation *= Quaternion.AngleAxis(angle, axis);
+        if (carDirection == Car.Direction.W && targetDirection == Car.Direction.N) { targetAngle = 0f; pivotPoint = transform.position + new Vector3(0f, 0f, 2f); angle = 50f; }
+        if (carDirection == Car.Direction.W && targetDirection == Car.Direction.S) { targetAngle = 180f; pivotPoint = transform.position + new Vector3(-1f, 0f, -2f); angle = -50f; }
+
+        isTurning = true;
+
+        while ((int)transform.rotation.eulerAngles.y != (int)targetAngle)
+        {
+            transform.RotateAround(pivotPoint, Vector3.up, angle * Time.deltaTime);
+            yield return null;
+        }
+
+        isTurning = false;
     }
 }
