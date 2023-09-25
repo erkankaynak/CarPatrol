@@ -11,6 +11,7 @@ public class TurnPoint : MonoBehaviour
     private float roadWidth = 3.4f;
     private float pivotDistance = 1.8f;
     private float moveBeforeTurnDistance = 2f;
+    private float turningSpeed = 2f;
 
     public TurnPointDirection N;
     public TurnPointDirection S;
@@ -120,7 +121,7 @@ public class TurnPoint : MonoBehaviour
         // Turn Right
         while (true)
         {
-            car.transform.RotateAround(pivotPoint, Vector3.up, 2*turningAngle * car.turningSpeed * Time.deltaTime);
+            car.transform.RotateAround(pivotPoint, Vector3.up, 2*turningAngle * car.currentSpeed * Time.deltaTime);
 
             diff = Quaternion.Angle(car.transform.rotation, Quaternion.Euler(0f, targetAngle, 0f));
             if (diff < 5f) break;
@@ -148,7 +149,7 @@ public class TurnPoint : MonoBehaviour
         {
             while (Vector3.Distance(car.transform.position, targetPosition) > 0.1f)
             {
-                car.transform.position = Vector3.MoveTowards(car.transform.position, targetPosition, car.turningSpeed * Time.deltaTime);
+                car.transform.position = Vector3.MoveTowards(car.transform.position, targetPosition, car.speed * Time.deltaTime);
                 yield return null;
             }
             car.transform.position = targetPosition;
@@ -157,7 +158,7 @@ public class TurnPoint : MonoBehaviour
         // Turn Left
         while (true)
         {
-            car.transform.RotateAround(pivotPoint, Vector3.up, -2 * turningAngle * car.turningSpeed * Time.deltaTime);
+            car.transform.RotateAround(pivotPoint, Vector3.up, -2 * turningAngle * car.currentSpeed * Time.deltaTime);
 
             diff= Quaternion.Angle(car.transform.rotation, Quaternion.Euler(0f, targetAngle, 0f));
             if (diff < 5f) break;
