@@ -4,5 +4,9 @@ using UnityEngine;
 
 public class TurnPointDirection : MonoBehaviour
 {
-
+    private void Start()
+    {
+        var renderer = gameObject.GetComponent<MeshRenderer>();
+        renderer.enabled = false;
+    }
 }

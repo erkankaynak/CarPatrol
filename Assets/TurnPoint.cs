@@ -8,10 +8,10 @@ using TMPro;
 public class TurnPoint : MonoBehaviour
 {
     // Settings
-    private float roadWidth = 3.4f;
-    private float pivotDistance = 1.8f;
-    private float moveBeforeTurnDistance = 2f;
-    private float turningSpeed = 2f;
+    public float roadWidth = 3.4f;
+    public float pivotDistance = 1.8f;
+    public float moveBeforeTurnDistance = 2f;
+    public float turningSpeed = 2f;
 
     public TurnPointDirection N;
     public TurnPointDirection S;
