@@ -9,13 +9,13 @@ public class Car : MonoBehaviour
     public enum Direction { N=1, S=-1, W=2, E=-2 };
 
     public float speed = 5f;
-
-    public float slowSpeed = 1f;
     public float currentSpeed;
-
     public bool isTurning = false;
-    public bool isBehindCar = false;
-    public Direction direction; 
+    public Direction direction;
+
+    private float slowSpeed = 1f;
+    private bool isBehindCar = false;
+    
 
 
     void Update()

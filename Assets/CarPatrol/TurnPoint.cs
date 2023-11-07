@@ -13,10 +13,12 @@ public class TurnPoint : MonoBehaviour
     public float moveBeforeTurnDistance = 2f;
     public float turningSpeed = 2f;
 
-    public TurnPointDirection N;
-    public TurnPointDirection S;
-    public TurnPointDirection W;
-    public TurnPointDirection E;
+    public bool isUTurn = false;
+
+    public bool N;
+    public bool S;
+    public bool W;
+    public bool E;
 
     private float turningAngle = 10f;
     private List<Car.Direction> possibleDirections = new List<Car.Direction>();
@@ -24,17 +26,32 @@ public class TurnPoint : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (N.isActiveAndEnabled) possibleDirections.Add(Car.Direction.N);
-        if (S.isActiveAndEnabled) possibleDirections.Add(Car.Direction.S);
-        if (W.isActiveAndEnabled) possibleDirections.Add(Car.Direction.W);
-        if (E.isActiveAndEnabled) possibleDirections.Add(Car.Direction.E);
+        ResetDirections();
 
+        var plus = transform.GetChild(0);
+        plus.gameObject.SetActive(false);
     }
 
+    private void ResetDirections()
+    {
+        possibleDirections.Clear();
+        if (N) possibleDirections.Add(Car.Direction.N);
+        if (S) possibleDirections.Add(Car.Direction.S);
+        if (W) possibleDirections.Add(Car.Direction.W);
+        if (E) possibleDirections.Add(Car.Direction.E);
+    }
     private void OnTriggerEnter(Collider other)
     {
         var car = other.gameObject.GetComponent<Car>();
         if (car == null) return;
+
+        ResetDirections();
+
+        if (isUTurn)
+        {
+            UTurn(car);
+            return;
+        }
 
         if (car.isTurning == false)
         {
@@ -43,15 +60,14 @@ public class TurnPoint : MonoBehaviour
             tempPossibleDirections.Remove((Car.Direction)((int)car.direction*-1));
             var direction = tempPossibleDirections[Random.Range(0, possibleDirections.Count - 1)];
 
-            // print("Car's Direction is " + car.direction);
-            // print("Car is going to " + direction);
-
             if (car.direction != direction)
+            {
                 StartCoroutine(TurnCar(car, direction));
+            }
         }
     }
 
-    private void _Turn(Car car, Car.Direction direction)
+    private void TurnCarPanicMode(Car car, Car.Direction direction)
     {
         Vector3 targetPosition = Vector3.zero;
         float angle = 0f;
@@ -121,7 +137,7 @@ public class TurnPoint : MonoBehaviour
         // Turn Right
         while (true)
         {
-            car.transform.RotateAround(pivotPoint, Vector3.up, 2*turningAngle * car.currentSpeed * Time.deltaTime);
+            car.transform.RotateAround(pivotPoint, Vector3.up, turningAngle * 2 * car.currentSpeed * Time.deltaTime);
 
             diff = Quaternion.Angle(car.transform.rotation, Quaternion.Euler(0f, targetAngle, 0f));
             if (diff < 5f) break;
@@ -144,12 +160,12 @@ public class TurnPoint : MonoBehaviour
         if (car.direction == Car.Direction.W) { targetAngle = 180f;  targetPosition = car.transform.position + new Vector3(-moveBeforeTurnDistance, 0f, 0f); pivotPoint = targetPosition + new Vector3(0f, 0f, -pivotDistance); }
         if (car.direction == Car.Direction.E) { targetAngle = 0f;  targetPosition = car.transform.position + new Vector3(moveBeforeTurnDistance, 0f, 0f); pivotPoint = targetPosition + new Vector3(0f, 0f, pivotDistance); }
 
-        // Move
+        // Move to the middle of crossroad
         if (targetPosition != Vector3.zero)
         {
             while (Vector3.Distance(car.transform.position, targetPosition) > 0.1f)
             {
-                car.transform.position = Vector3.MoveTowards(car.transform.position, targetPosition, car.speed * Time.deltaTime);
+                car.transform.position = Vector3.MoveTowards(car.transform.position, targetPosition, car.currentSpeed * Time.deltaTime);
                 yield return null;
             }
             car.transform.position = targetPosition;
@@ -158,7 +174,7 @@ public class TurnPoint : MonoBehaviour
         // Turn Left
         while (true)
         {
-            car.transform.RotateAround(pivotPoint, Vector3.up, -2 * turningAngle * car.currentSpeed * Time.deltaTime);
+            car.transform.RotateAround(pivotPoint, Vector3.up, -turningAngle * 2 * car.currentSpeed * Time.deltaTime);
 
             diff= Quaternion.Angle(car.transform.rotation, Quaternion.Euler(0f, targetAngle, 0f));
             if (diff < 5f) break;
@@ -167,5 +183,13 @@ public class TurnPoint : MonoBehaviour
 
         // Fix angle
         car.transform.rotation = Quaternion.Euler(car.transform.eulerAngles.x, targetAngle, car.transform.eulerAngles.z);
+    }
+
+    private void UTurn(Car car)
+    {
+        car.direction = (Car.Direction)((int)car.direction * -1);
+        car.transform.Translate(Vector3.left * roadWidth / 2);
+        car.transform.Rotate(Vector3.up, 180);
+
     }
 }
